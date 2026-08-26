@@ -1,5 +1,5 @@
-from evaluator import SuccessEvaluator
-from models import AttackDefinition, SuccessCondition, TargetResponse
+from attack_engine.evaluator import SuccessEvaluator
+from attack_engine.models import AttackDefinition, SuccessCondition, TargetResponse
 
 
 def make_attack(condition_type, value):

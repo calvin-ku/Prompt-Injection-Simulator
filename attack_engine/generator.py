@@ -51,9 +51,30 @@ class AttackEngine:
                     f"attack {attack.attack_id}. Allowed: {attack.mutations}"
                 )
 
+                if mutations is not None:
+                    invalid_for_attack = [
+                    mutation
+                    for mutation in mutations
+                        if mutation not in attack.mutations
+                    ]   
+
+                if invalid_for_attack:
+                    raise ValueError(
+                        f"Mutation(s) {invalid_for_attack} are not allowed for "
+                        f"attack {attack.attack_id}. Allowed: {attack.mutations}"
+                    )
+
+                selected_mutations = mutations
+
+        else:
+            selected_mutations = self.mutator.mutation_rng.sample(
+                attack.mutations,
+                k=min(random_depth, len(attack.mutations)),
+            )
+
         mutation_result = self.mutator.apply_chain(
             text=attack.payload_template,
-            mutator_names=mutations,
+            mutator_names=selected_mutations,
             depth=random_depth,
         )
 

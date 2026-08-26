@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from mutators import PayloadMutator
-from validator import CatalogValidationError, CatalogValidator
+from attack_engine.mutators import PayloadMutator
+from attack_engine.validator import CatalogValidationError, CatalogValidator
 
 
 def write_json(path, data):
