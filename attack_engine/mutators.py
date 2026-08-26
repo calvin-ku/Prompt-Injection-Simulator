@@ -26,6 +26,7 @@ class AdversarialEngine:
         self.threat_matrix: List[AttackPayload] = []
         self._initialize_payloads()
 
+    # different types of attacks more can easily be added in at anytime
     def _initialize_payloads(self):
         """Loads the structured threat vectors into system memory."""
         self.threat_matrix.extend([
