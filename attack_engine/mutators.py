@@ -122,6 +122,16 @@ class PayloadMutator:
         " Ensure the format matches standard MLA citation guidelines.",
     ]
 
+    MUTATION_ORDER = {
+        MutationCategory.SEMANTIC: 10,
+        MutationCategory.NOISE: 20,
+        MutationCategory.LEXICAL: 30,
+        MutationCategory.TOKEN: 40,
+        MutationCategory.STRUCTURAL: 50,
+        MutationCategory.ENCODING: 60,
+    }
+    
+
     # ------------------------------------------------------------------
     # BENIGN BENCHMARK CORPUS
     # ------------------------------------------------------------------
@@ -600,6 +610,52 @@ class PayloadMutator:
                 f"Unknown mutator(s): {unknown}. "
                 f"Available mutators: {available}"
             )
+
+    def build_random_chain(
+        self,
+        allowed_mutators: List[str],
+        depth: int = 3,
+    ) -> List[str]:
+        """
+        Build a seeded randomized mutation chain from an allowed mutator list.
+
+        The selected mutations are randomly sampled, then ordered by mutation
+        category so chains are more semantically useful.
+
+        Intended ordering:
+            semantic/noise -> lexical/token -> structural -> encoding
+
+        Example:
+            ["base64", "xml", "homoglyph"]
+            becomes something like:
+            ["homoglyph", "xml", "base64"]
+
+        Explicit user-provided chains are not reordered by this method.
+        """
+        if not isinstance(allowed_mutators, list):
+            raise TypeError("allowed_mutators must be a list of mutator names")
+
+        if depth < 0:
+            raise ValueError("depth must be greater than or equal to zero")
+
+        self.validate_chain(allowed_mutators)
+
+        if depth == 0 or not allowed_mutators:
+            return []
+
+        selected = self.mutation_rng.sample(
+            allowed_mutators,
+            k=min(depth, len(allowed_mutators)),
+        )
+
+        selected.sort(
+            key=lambda name: (
+                self.MUTATION_ORDER[self.registry[name].category],
+                name,
+            )
+        )
+
+        return selected
 
     # ------------------------------------------------------------------
     # ENGINE EXECUTION

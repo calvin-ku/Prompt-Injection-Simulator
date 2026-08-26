@@ -67,9 +67,9 @@ class AttackEngine:
                 selected_mutations = mutations
 
         else:
-            selected_mutations = self.mutator.mutation_rng.sample(
-                attack.mutations,
-                k=min(random_depth, len(attack.mutations)),
+            selected_mutations = self.mutator.build_random_chain(
+                allowed_mutators=attack.mutations,
+                depth=random_depth,
             )
 
         mutation_result = self.mutator.apply_chain(
