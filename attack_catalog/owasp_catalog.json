@@ -1,6 +1,6 @@
 {
-  "catalog_name": "OWASP Top 10 LLM 2026",
-  "version": "3.0",
+  "catalog_name": "LLM Security Attack Catalog",
+  "version": "1.0.0",
   "attacks": [
     {
       "attack_id": "OWASP-LLM01-DIR",

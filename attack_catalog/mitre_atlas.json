@@ -1,6 +1,6 @@
 {
     "catalog_name": "MITRE ATLAS - GenAI Tactics",
-    "version": "3.0",
+    "version": "1.0.0",
     "attacks": [
         {
             "attack_id": "ATLAS-JB-DAN",
