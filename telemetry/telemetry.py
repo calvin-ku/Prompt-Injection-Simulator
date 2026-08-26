@@ -3,8 +3,8 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-from models import AttackDefinition, EvaluationResult, TargetConfig, TargetResponse
-from mutators import MutationResult
+from attack_engine.models import AttackDefinition, EvaluationResult, TargetConfig, TargetResponse
+from attack_engine.mutators import MutationResult
 
 
 class TelemetryBuilder:

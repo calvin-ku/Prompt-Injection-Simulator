@@ -1,7 +1,7 @@
 import re
 from typing import Any, Iterable
 
-from models import AttackDefinition, EvaluationResult, TargetResponse
+from attack_engine.models import AttackDefinition, EvaluationResult, TargetResponse
 
 
 class SuccessEvaluator:

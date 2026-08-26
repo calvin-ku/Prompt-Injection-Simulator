@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
 
-from engine import AttackEngine
-from models import AttackExecutionResult
+from attack_engine.generator import AttackEngine
+from attack_engine.models import AttackExecutionResult
 
 
 class CampaignOrchestrator:

@@ -1,7 +1,7 @@
 import time
 from typing import Protocol
 
-from models import TargetConfig, TargetResponse
+from attack_engine.models import TargetConfig, TargetResponse
 
 
 class TargetClient(Protocol):

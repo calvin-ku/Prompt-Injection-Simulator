@@ -1,11 +1,11 @@
 import argparse
 import json
 
-from engine import AttackEngine
-from mutators import PayloadMutator
-from orchestrator import CampaignOrchestrator
-from target import MockSafeTarget
-from validator import CatalogValidator
+from attack_engine.generator import AttackEngine
+from attack_engine.mutators import PayloadMutator
+from attack_engine.orchestrator import CampaignOrchestrator
+from attack_engine.validator import CatalogValidator
+from attack_engine.target import MockSafeTarget
 
 
 def parse_mutations(raw: str):

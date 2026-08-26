@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
-from models import AttackDefinition, SuccessCondition
+from attack_engine.models import AttackDefinition, SuccessCondition
 
 
 class CatalogValidationError(ValueError):

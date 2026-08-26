@@ -1,11 +1,11 @@
 from typing import Dict, List, Optional
 from uuid import uuid4
 
-from evaluator import SuccessEvaluator
-from models import AttackDefinition, AttackExecutionResult
-from mutators import PayloadMutator
-from target import TargetClient
-from telemetry import TelemetryBuilder
+from attack_engine.evaluator import SuccessEvaluator
+from attack_engine.models import AttackDefinition, AttackExecutionResult
+from attack_engine.mutators import PayloadMutator
+from attack_engine.target import TargetClient
+from telemetry.telemetry import TelemetryBuilder
 
 
 class AttackEngine:
