@@ -1,0 +1,14 @@
+{
+  "mapping_name": "OWASP Top 10 for LLMs",
+  "version": "1.0.0",
+  "mappings": [
+    { "attack_id": "ATTACK-INJ-DIR-01", "owasp_id": "LLM01" },
+    { "attack_id": "ATTACK-INJ-IND-01", "owasp_id": "LLM01" },
+    { "attack_id": "ATTACK-EXFIL-SYNTHETIC-01", "owasp_id": "LLM02" },
+    { "attack_id": "ATTACK-XSS-REFLECT-01", "owasp_id": "LLM05" },
+    { "attack_id": "ATTACK-AGC-UNAUTH-01", "owasp_id": "LLM06" },
+    { "attack_id": "ATTACK-DOS-LOOP-01", "owasp_id": "LLM10" },
+    { "attack_id": "ATTACK-JB-DAN-01", "owasp_id": "LLM01" },
+    { "attack_id": "ATTACK-RAG-POISON-01", "owasp_id": "LLM01" }
+  ]
+}

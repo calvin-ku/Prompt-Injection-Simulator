@@ -1,0 +1,14 @@
+{
+    "mapping_name": "MITRE ATLAS GenAI Mapping",
+    "version": "1.0.0",
+    "mappings": [
+      { "attack_id": "ATTACK-INJ-DIR-01", "atlas_id": "AML.T0051.000" },
+      { "attack_id": "ATTACK-INJ-IND-01", "atlas_id": "AML.T0051.001" },
+      { "attack_id": "ATTACK-EXFIL-SYNTHETIC-01", "atlas_id": "AML.T0024" },
+      { "attack_id": "ATTACK-XSS-REFLECT-01", "atlas_id": "AML.T0051" },
+      { "attack_id": "ATTACK-AGC-UNAUTH-01", "atlas_id": "AML.T0053" },
+      { "attack_id": "ATTACK-DOS-LOOP-01", "atlas_id": "AML.T0043" },
+      { "attack_id": "ATTACK-JB-DAN-01", "atlas_id": "AML.T0054" },
+      { "attack_id": "ATTACK-RAG-POISON-01", "atlas_id": "AML.T0051.001" }
+    ]
+  }
