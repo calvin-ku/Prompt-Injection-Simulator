@@ -1,12 +1,13 @@
 import json
 import os
-from typing import List, Dict
+import random
+from typing import List, Dict, Tuple
 from attack_engine.mutators import PayloadMutator
 
 class AttackGenerator:
     """
-    Parses JSON taxonomies and orchestrates the fuzzing engine
-    to generate the final barrage of attack vectors.
+    Parses JSON taxonomies and synthesizes large-scale evaluation datasets
+    with advanced mutation vectors and benign baseline controls.
     """
 
     def __init__(self, catalog_dir: str = "attack_catalog"):
@@ -27,32 +28,63 @@ class AttackGenerator:
                     base_attacks.extend(data.get("attacks", []))
         return base_attacks
 
-    def generate_campaign(self) -> List[Dict]:
+    def generate_dataset(self, attack_target: int = 2500, benign_target: int = 2500) -> Tuple[List[Dict], List[Dict]]:
         """
-        Multiplies base intents using the mutation engine to create a comprehensive suite.
+        Generates a balanced evaluation dataset with thousands of samples.
         """
         base_attacks = self.load_catalogs()
-        campaign_payloads = []
+        if not base_attacks:
+            return [], []
 
-        for attack in base_attacks:
-            # Pass the base template through the mutator
-            variants = PayloadMutator.generate_variants(attack["payload_template"])
+        attacks_generated = []
+        strategies = [
+            ("baseline", lambda x: x),
+            ("base64", PayloadMutator.base64_encode),
+            ("hex", PayloadMutator.hex_encode),
+            ("rot13", PayloadMutator.rot13_encode),
+            ("leetspeak", PayloadMutator.leetspeak),
+            ("unicode_homoglyphs", PayloadMutator.unicode_homoglyphs),
+            ("xml_delimiters", PayloadMutator.xml_delimiters),
+            ("yaml_spoofing", PayloadMutator.structured_yaml_spoofing),
+            ("few_shot_jailbreak", PayloadMutator.few_shot_jailbreak),
+            ("hypothetical_framing", PayloadMutator.hypothetical_framing),
+            ("token_splitting", PayloadMutator.token_splitting),
+            ("chained_mutation_d2", lambda x: PayloadMutator.apply_chain(x, depth=2)),
+            ("chained_mutation_d3", lambda x: PayloadMutator.apply_chain(x, depth=3))
+        ]
+
+        count = 0
+        while len(attacks_generated) < attack_target:
+            base = random.choice(base_attacks)
+            strat_name, strat_fn = random.choice(strategies)
             
-            for variant in variants:
-                # Merge the generated payload with the original telemetry tags
-                attack_vector = attack.copy()
-                attack_vector["mutation_strategy"] = variant["mutation_type"]
-                attack_vector["fuzzed_payload"] = variant["mutated_payload"]
-                
-                campaign_payloads.append(attack_vector)
+            prefix = random.choice(["", *PayloadMutator.PREFIX_NOISE])
+            suffix = random.choice(["", *PayloadMutator.SUFFIX_NOISE])
+            
+            raw_payload = f"{prefix}{base['payload_template']}{suffix}".strip()
+            mutated_payload = strat_fn(raw_payload)
 
-        return campaign_payloads
+            attacks_generated.append({
+                "sample_id": f"ATK-{count+1:05d}",
+                "is_malicious": True,
+                "attack_id": base["attack_id"],
+                "family": base["family"],
+                "owasp": base["owasp"],
+                "atlas": base["atlas"],
+                "severity": base["severity"],
+                "mutation_strategy": strat_name,
+                "prompt": mutated_payload,
+                "success_condition": base["success_condition"]
+            })
+            count += 1
+
+        benign_generated = PayloadMutator.generate_benign_samples(benign_target)
+        return attacks_generated, benign_generated
 
 if __name__ == "__main__":
-    # Run this file directly to test the generation
     generator = AttackGenerator()
-    campaign = generator.generate_campaign()
-    print(f"Successfully generated {len(campaign)} fuzzed attack vectors.")
-    if campaign:
-        print("Sample Vector:")
-        print(json.dumps(campaign[0], indent=2))
+    attacks, benign = generator.generate_dataset(attack_target=2500, benign_target=2500)
+    print(f"Enterprise Evaluation Dataset Generated:")
+    print(f"  - Adversarial Attack Vectors: {len(attacks):,}")
+    print(f"  - Benign Baseline Prompts:   {len(benign):,}")
+    print(f"  - Total Benchmark Suite:     {len(attacks) + len(benign):,} samples")
