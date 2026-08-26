@@ -26,17 +26,17 @@ def main():
 
     parser.add_argument(
         "--attack-catalog",
-        default="attack_catalog.json",
+        default="attack_catalog/attack_catalog.json",
     )
 
     parser.add_argument(
         "--owasp-mapping",
-        default="owasp_mapping.json",
+        default="attack_catalog/owasp_mapping.json",
     )
 
     parser.add_argument(
         "--atlas-mapping",
-        default="mitre_atlas_mapping.json",
+        default="attack_catalog/mitre_atlas_mapping.json",
     )
 
     parser.add_argument(
