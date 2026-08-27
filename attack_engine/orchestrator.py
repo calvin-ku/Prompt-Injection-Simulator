@@ -1,18 +1,18 @@
-import json
-from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
 
 from attack_engine.generator import AttackEngine
 from attack_engine.models import AttackExecutionResult
+from telemetry.ecs_logger import ECSJsonlLogger
 
 
 class CampaignOrchestrator:
     """
     Runs one attack or an entire campaign.
 
-    The orchestrator owns campaign IDs, output files, batch runs,
-    and result collection.
+    The orchestrator owns campaign IDs, batch runs,
+    result collection, and delegates telemetry persistence
+    to the telemetry logging layer.
     """
 
     def __init__(self, engine: AttackEngine):
@@ -84,9 +84,9 @@ class CampaignOrchestrator:
         results: List[AttackExecutionResult],
         output_path: str,
     ) -> None:
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
+        logger = ECSJsonlLogger(output_path)
 
-        with path.open("w", encoding="utf-8") as file:
-            for result in results:
-                file.write(json.dumps(result.telemetry) + "\n")
+        logger.write_events(
+            (result.telemetry for result in results),
+            append=False,
+        )
