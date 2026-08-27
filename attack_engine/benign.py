@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 from attack_engine.models import TargetResponse
@@ -19,6 +19,7 @@ class BenignExecutionResult:
     target_response: TargetResponse
     false_positive: bool
     benign_blocked: bool
+    telemetry: Dict[str, Any] = field(default_factory=dict)
 
 
 class BenignRunner:
