@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
-def load_jsonl_events(input_path: str) -> List[Dict[str, Any]]:
+def load_jsonl_events(
+    input_path: str,
+) -> List[Dict[str, Any]]:
     path = Path(input_path)
 
     if not path.exists():
@@ -15,19 +17,28 @@ def load_jsonl_events(input_path: str) -> List[Dict[str, Any]]:
 
     events = []
 
-    with path.open("r", encoding="utf-8") as file:
-        for line_number, line in enumerate(file, start=1):
+    with path.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+        for line_number, line in enumerate(
+            file,
+            start=1,
+        ):
             line = line.strip()
 
             if not line:
                 continue
 
             try:
-                events.append(json.loads(line))
+                events.append(
+                    json.loads(line)
+                )
             except json.JSONDecodeError as exc:
                 raise ValueError(
-                    f"Invalid JSON on line {line_number} "
-                    f"of {input_path}: {exc}"
+                    f"Invalid JSON on line "
+                    f"{line_number} of "
+                    f"{input_path}: {exc}"
                 ) from exc
 
     return events
@@ -53,7 +64,10 @@ def get_bool(
     default: bool = False,
 ) -> bool:
     return bool(
-        event.get(section, {}).get(
+        event.get(
+            section,
+            {},
+        ).get(
             key,
             default,
         )
@@ -64,15 +78,17 @@ def get_event_type(
     event: Dict[str, Any],
 ) -> str:
     """
-    Return the benchmark event type.
+    Return benchmark event type.
 
-    Older telemetry that does not contain event.type is treated as
-    adversarial traffic for backwards compatibility.
+    Older telemetry without event.type defaults to
+    adversarial_test for backwards compatibility.
     """
-    event_type = event.get(
-        "event",
-        {},
-    ).get("type")
+    event_type = (
+        event.get(
+            "event",
+            {},
+        ).get("type")
+    )
 
     if event_type in {
         "adversarial_test",
@@ -92,13 +108,19 @@ def get_event_type(
 def get_attack_succeeded(
     event: Dict[str, Any],
 ) -> bool:
-    result_value = event.get(
-        "result",
-        {},
-    ).get("attack_succeeded")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "attack_succeeded"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
     return bool(
         event.get(
@@ -114,13 +136,19 @@ def get_attack_succeeded(
 def get_defense_detected(
     event: Dict[str, Any],
 ) -> bool:
-    result_value = event.get(
-        "result",
-        {},
-    ).get("defense_detected")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "defense_detected"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
     return bool(
         event.get(
@@ -136,13 +164,19 @@ def get_defense_detected(
 def get_blocked(
     event: Dict[str, Any],
 ) -> bool:
-    result_value = event.get(
-        "result",
-        {},
-    ).get("blocked")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "blocked"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
     return bool(
         event.get(
@@ -158,13 +192,19 @@ def get_blocked(
 def get_error(
     event: Dict[str, Any],
 ) -> bool:
-    result_value = event.get(
-        "result",
-        {},
-    ).get("error")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "error"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
     return (
         event.get(
@@ -178,35 +218,45 @@ def get_error(
 def get_false_positive(
     event: Dict[str, Any],
 ) -> bool:
-    """
-    A benign detection is a false-positive detection.
-
-    Prefer the explicit telemetry field when available and fall back to
-    the defense detection state for backwards compatibility.
-    """
-    result_value = event.get(
-        "result",
-        {},
-    ).get("false_positive")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "false_positive"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
-    return get_defense_detected(event)
+    return get_defense_detected(
+        event
+    )
 
 
 def get_benign_blocked(
     event: Dict[str, Any],
 ) -> bool:
-    result_value = event.get(
-        "result",
-        {},
-    ).get("benign_blocked")
+    result_value = (
+        event.get(
+            "result",
+            {},
+        ).get(
+            "benign_blocked"
+        )
+    )
 
     if result_value is not None:
-        return bool(result_value)
+        return bool(
+            result_value
+        )
 
-    return get_blocked(event)
+    return get_blocked(
+        event
+    )
 
 
 def get_detector_names(
@@ -217,19 +267,29 @@ def get_detector_names(
         {},
     )
 
-    detector_names = defense.get(
-        "detector_names"
+    detector_names = (
+        defense.get(
+            "detector_names"
+        )
     )
 
-    if isinstance(detector_names, list):
+    if isinstance(
+        detector_names,
+        list,
+    ):
         return [
-            str(detector_name)
-            for detector_name in detector_names
+            str(
+                detector_name
+            )
+            for detector_name
+            in detector_names
             if detector_name
         ]
 
-    detection_mechanism = defense.get(
-        "detection_mechanism"
+    detection_mechanism = (
+        defense.get(
+            "detection_mechanism"
+        )
     )
 
     if isinstance(
@@ -238,7 +298,10 @@ def get_detector_names(
     ):
         return [
             item.strip()
-            for item in detection_mechanism.split(",")
+            for item
+            in detection_mechanism.split(
+                ","
+            )
             if item.strip()
         ]
 
@@ -253,23 +316,31 @@ def calculate_benchmark_metrics(
         events = [
             event
             for event in events
-            if event.get("campaign_id")
+            if event.get(
+                "campaign_id"
+            )
             == campaign_id
         ]
 
-    total_events = len(events)
+    total_events = len(
+        events
+    )
 
     attack_events = [
         event
         for event in events
-        if get_event_type(event)
+        if get_event_type(
+            event
+        )
         == "adversarial_test"
     ]
 
     benign_events = [
         event
         for event in events
-        if get_event_type(event)
+        if get_event_type(
+            event
+        )
         == "benign_test"
     ]
 
@@ -282,7 +353,7 @@ def calculate_benchmark_metrics(
     )
 
     # ---------------------------------------------------------
-    # Adversarial metrics
+    # Overall attack metrics
     # ---------------------------------------------------------
 
     attack_success_count = 0
@@ -309,6 +380,10 @@ def calculate_benchmark_metrics(
     attack_severity_counter = Counter()
     target_counter = Counter()
 
+    # ---------------------------------------------------------
+    # Mutation chain statistics
+    # ---------------------------------------------------------
+
     mutation_chain_stats = defaultdict(
         lambda: {
             "total": 0,
@@ -318,7 +393,30 @@ def calculate_benchmark_metrics(
         }
     )
 
+    # ---------------------------------------------------------
+    # Canonical attack aggregation
+    # ---------------------------------------------------------
+
+    per_attack_stats = defaultdict(
+        lambda: {
+            "total_variants": 0,
+            "attack_successes": 0,
+            "defense_detections": 0,
+            "blocked": 0,
+            "errors": 0,
+            "successful_and_detected": 0,
+            "successful_and_missed": 0,
+            "family": "unknown",
+            "severity": "unknown",
+        }
+    )
+
+    # Keep raw variant-level results in JSON.
     per_attack_results = []
+
+    # ---------------------------------------------------------
+    # Process attack events
+    # ---------------------------------------------------------
 
     for event in attack_events:
         attack = event.get(
@@ -338,35 +436,60 @@ def calculate_benchmark_metrics(
 
         attack_id = (
             attack.get("id")
-            or attack.get("attack_id")
+            or attack.get(
+                "attack_id"
+            )
             or "unknown"
         )
 
-        attack_family = attack.get(
-            "family",
-            "unknown",
+        attack_family = (
+            attack.get(
+                "family",
+                "unknown",
+            )
         )
 
-        attack_severity = attack.get(
-            "severity",
-            "unknown",
+        attack_severity = (
+            attack.get(
+                "severity",
+                "unknown",
+            )
         )
 
-        target_name = target.get(
-            "name",
-            "unknown",
+        target_name = (
+            target.get(
+                "name",
+                "unknown",
+            )
         )
 
         attack_succeeded = (
-            get_attack_succeeded(event)
+            get_attack_succeeded(
+                event
+            )
         )
 
         defense_detected = (
-            get_defense_detected(event)
+            get_defense_detected(
+                event
+            )
         )
 
-        blocked = get_blocked(event)
-        has_error = get_error(event)
+        blocked = (
+            get_blocked(
+                event
+            )
+        )
+
+        has_error = (
+            get_error(
+                event
+            )
+        )
+
+        # -----------------------------------------------------
+        # Overall counts
+        # -----------------------------------------------------
 
         if attack_succeeded:
             attack_success_count += 1
@@ -420,8 +543,14 @@ def calculate_benchmark_metrics(
         ):
             successful_attack_not_blocked_count += 1
 
-        for detector_name in get_detector_names(
-            event
+        # -----------------------------------------------------
+        # Detector counts
+        # -----------------------------------------------------
+
+        for detector_name in (
+            get_detector_names(
+                event
+            )
         ):
             detector_counter[
                 detector_name
@@ -439,9 +568,15 @@ def calculate_benchmark_metrics(
             target_name
         ] += 1
 
-        mutation_chain = mutation.get(
-            "chain",
-            [],
+        # -----------------------------------------------------
+        # Mutation chain statistics
+        # -----------------------------------------------------
+
+        mutation_chain = (
+            mutation.get(
+                "chain",
+                [],
+            )
         )
 
         if mutation_chain:
@@ -451,7 +586,9 @@ def calculate_benchmark_metrics(
                 )
             )
         else:
-            mutation_chain_name = "none"
+            mutation_chain_name = (
+                "none"
+            )
 
         mutation_chain_stats[
             mutation_chain_name
@@ -460,27 +597,112 @@ def calculate_benchmark_metrics(
         if attack_succeeded:
             mutation_chain_stats[
                 mutation_chain_name
-            ]["attack_successes"] += 1
+            ][
+                "attack_successes"
+            ] += 1
 
         if defense_detected:
             mutation_chain_stats[
                 mutation_chain_name
-            ]["defense_detections"] += 1
+            ][
+                "defense_detections"
+            ] += 1
 
         if blocked:
             mutation_chain_stats[
                 mutation_chain_name
             ]["blocked"] += 1
 
+        # -----------------------------------------------------
+        # Canonical attack aggregation
+        # -----------------------------------------------------
+
+        attack_stats = (
+            per_attack_stats[
+                attack_id
+            ]
+        )
+
+        attack_stats[
+            "family"
+        ] = attack_family
+
+        attack_stats[
+            "severity"
+        ] = attack_severity
+
+        attack_stats[
+            "total_variants"
+        ] += 1
+
+        if attack_succeeded:
+            attack_stats[
+                "attack_successes"
+            ] += 1
+
+        if defense_detected:
+            attack_stats[
+                "defense_detections"
+            ] += 1
+
+        if blocked:
+            attack_stats[
+                "blocked"
+            ] += 1
+
+        if has_error:
+            attack_stats[
+                "errors"
+            ] += 1
+
+        if (
+            attack_succeeded
+            and defense_detected
+        ):
+            attack_stats[
+                "successful_and_detected"
+            ] += 1
+
+        if (
+            attack_succeeded
+            and not defense_detected
+        ):
+            attack_stats[
+                "successful_and_missed"
+            ] += 1
+
+        # -----------------------------------------------------
+        # Raw variant detail
+        # -----------------------------------------------------
+
         per_attack_results.append(
             {
-                "attack_id": attack_id,
-                "family": attack_family,
-                "severity": attack_severity,
-                "mutation_chain": mutation_chain,
-                "attack_succeeded": attack_succeeded,
-                "defense_detected": defense_detected,
-                "blocked": blocked,
+                "attack_id": (
+                    attack_id
+                ),
+                "variant_index": (
+                    attack.get(
+                        "variant_index"
+                    )
+                ),
+                "family": (
+                    attack_family
+                ),
+                "severity": (
+                    attack_severity
+                ),
+                "mutation_chain": (
+                    mutation_chain
+                ),
+                "attack_succeeded": (
+                    attack_succeeded
+                ),
+                "defense_detected": (
+                    defense_detected
+                ),
+                "blocked": (
+                    blocked
+                ),
                 "detection_mechanism": (
                     event.get(
                         "defense",
@@ -497,22 +719,123 @@ def calculate_benchmark_metrics(
                         "latency_ms"
                     )
                 ),
+                "variant_seed": (
+                    event.get(
+                        "reproducibility",
+                        {},
+                    ).get(
+                        "variant_seed"
+                    )
+                ),
             }
         )
 
     # ---------------------------------------------------------
-    # Benign / false-positive metrics
+    # Build canonical attack summary
+    # ---------------------------------------------------------
+
+    per_attack_summary = {}
+
+    for (
+        attack_id,
+        stats,
+    ) in per_attack_stats.items():
+        total = (
+            stats[
+                "total_variants"
+            ]
+        )
+
+        successes = (
+            stats[
+                "attack_successes"
+            ]
+        )
+
+        successful_detected = (
+            stats[
+                "successful_and_detected"
+            ]
+        )
+
+        successful_missed = (
+            stats[
+                "successful_and_missed"
+            ]
+        )
+
+        per_attack_summary[
+            attack_id
+        ] = {
+            **stats,
+
+            "attack_success_rate": (
+                safe_percent(
+                    successes,
+                    total,
+                )
+            ),
+
+            "defense_detection_rate": (
+                safe_percent(
+                    stats[
+                        "defense_detections"
+                    ],
+                    total,
+                )
+            ),
+
+            "block_rate": (
+                safe_percent(
+                    stats[
+                        "blocked"
+                    ],
+                    total,
+                )
+            ),
+
+            "error_rate": (
+                safe_percent(
+                    stats[
+                        "errors"
+                    ],
+                    total,
+                )
+            ),
+
+            "successful_attack_detection_rate": (
+                safe_percent(
+                    successful_detected,
+                    successes,
+                )
+            ),
+
+            "successful_attack_miss_rate": (
+                safe_percent(
+                    successful_missed,
+                    successes,
+                )
+            ),
+        }
+
+    # ---------------------------------------------------------
+    # Benign metrics
     # ---------------------------------------------------------
 
     benign_detection_count = 0
-    benign_missed_detection_count = 0
+    benign_not_detected_count = 0
 
     false_positive_count = 0
     benign_block_count = 0
     benign_error_count = 0
 
-    false_positive_detector_counter = Counter()
-    benign_category_counter = Counter()
+    false_positive_detector_counter = (
+        Counter()
+    )
+
+    benign_category_counter = (
+        Counter()
+    )
 
     per_benign_results = []
     false_positive_details = []
@@ -530,52 +853,74 @@ def calculate_benchmark_metrics(
 
         sample_id = (
             sample.get("id")
-            or sample.get("sample_id")
+            or sample.get(
+                "sample_id"
+            )
             or "unknown"
         )
 
-        category = sample.get(
-            "category",
-            "unknown",
+        category = (
+            sample.get(
+                "category",
+                "unknown",
+            )
         )
 
-        expected_result = sample.get(
-            "expected_result",
-            "allowed",
+        expected_result = (
+            sample.get(
+                "expected_result",
+                "allowed",
+            )
         )
 
-        target_name = target.get(
-            "name",
-            "unknown",
+        target_name = (
+            target.get(
+                "name",
+                "unknown",
+            )
         )
 
         defense_detected = (
-            get_defense_detected(event)
+            get_defense_detected(
+                event
+            )
         )
 
         false_positive = (
-            get_false_positive(event)
+            get_false_positive(
+                event
+            )
         )
 
         benign_blocked = (
-            get_benign_blocked(event)
+            get_benign_blocked(
+                event
+            )
         )
 
-        has_error = get_error(event)
+        has_error = (
+            get_error(
+                event
+            )
+        )
 
         detector_names = (
-            get_detector_names(event)
+            get_detector_names(
+                event
+            )
         )
 
         if defense_detected:
             benign_detection_count += 1
         else:
-            benign_missed_detection_count += 1
+            benign_not_detected_count += 1
 
         if false_positive:
             false_positive_count += 1
 
-            for detector_name in detector_names:
+            for detector_name in (
+                detector_names
+            ):
                 false_positive_detector_counter[
                     detector_name
                 ] += 1
@@ -591,13 +936,27 @@ def calculate_benchmark_metrics(
         ] += 1
 
         benign_result = {
-            "sample_id": sample_id,
-            "category": category,
-            "expected_result": expected_result,
-            "target": target_name,
-            "false_positive": false_positive,
-            "defense_detected": defense_detected,
-            "blocked": benign_blocked,
+            "sample_id": (
+                sample_id
+            ),
+            "category": (
+                category
+            ),
+            "expected_result": (
+                expected_result
+            ),
+            "target": (
+                target_name
+            ),
+            "false_positive": (
+                false_positive
+            ),
+            "defense_detected": (
+                defense_detected
+            ),
+            "blocked": (
+                benign_blocked
+            ),
             "detection_mechanism": (
                 event.get(
                     "defense",
@@ -606,7 +965,9 @@ def calculate_benchmark_metrics(
                     "detection_mechanism"
                 )
             ),
-            "detector_names": detector_names,
+            "detector_names": (
+                detector_names
+            ),
             "latency_ms": (
                 event.get(
                     "performance",
@@ -627,7 +988,7 @@ def calculate_benchmark_metrics(
             )
 
     # ---------------------------------------------------------
-    # Mutation-chain summary
+    # Mutation chain summary
     # ---------------------------------------------------------
 
     mutation_chain_summary = {}
@@ -636,12 +997,15 @@ def calculate_benchmark_metrics(
         chain_name,
         stats,
     ) in mutation_chain_stats.items():
-        total = stats["total"]
+        total = (
+            stats["total"]
+        )
 
         mutation_chain_summary[
             chain_name
         ] = {
             **stats,
+
             "attack_success_rate": (
                 safe_percent(
                     stats[
@@ -650,6 +1014,7 @@ def calculate_benchmark_metrics(
                     total,
                 )
             ),
+
             "defense_detection_rate": (
                 safe_percent(
                     stats[
@@ -658,22 +1023,29 @@ def calculate_benchmark_metrics(
                     total,
                 )
             ),
+
             "block_rate": (
                 safe_percent(
-                    stats["blocked"],
+                    stats[
+                        "blocked"
+                    ],
                     total,
                 )
             ),
         }
 
     # ---------------------------------------------------------
-    # Final metrics
+    # Final benchmark metrics
     # ---------------------------------------------------------
 
     return {
-        "campaign_id_filter": campaign_id,
+        "campaign_id_filter": (
+            campaign_id
+        ),
 
-        "total_events": total_events,
+        "total_events": (
+            total_events
+        ),
 
         "population": {
             "adversarial_events": (
@@ -688,18 +1060,23 @@ def calculate_benchmark_metrics(
             "attack_success_count": (
                 attack_success_count
             ),
+
             "attack_failure_count": (
                 attack_failure_count
             ),
+
             "defense_detected_count": (
                 defense_detected_count
             ),
+
             "defense_missed_count": (
                 defense_missed_count
             ),
+
             "blocked_count": (
                 blocked_count
             ),
+
             "error_count": (
                 attack_error_count
             ),
@@ -737,15 +1114,19 @@ def calculate_benchmark_metrics(
             "benign_detection_count": (
                 benign_detection_count
             ),
+
             "benign_not_detected_count": (
-                benign_missed_detection_count
+                benign_not_detected_count
             ),
+
             "false_positive_count": (
                 false_positive_count
             ),
+
             "benign_block_count": (
                 benign_block_count
             ),
+
             "error_count": (
                 benign_error_count
             ),
@@ -783,12 +1164,15 @@ def calculate_benchmark_metrics(
             "attack_succeeded_and_detected": (
                 successful_attack_detected_count
             ),
+
             "attack_succeeded_and_missed": (
                 successful_attack_missed_count
             ),
+
             "attack_failed_and_detected": (
                 failed_attack_detected_count
             ),
+
             "attack_failed_and_not_detected": (
                 failed_attack_not_detected_count
             ),
@@ -798,6 +1182,7 @@ def calculate_benchmark_metrics(
             "successful_attacks_blocked": (
                 successful_attack_blocked_count
             ),
+
             "successful_attacks_not_blocked": (
                 successful_attack_not_blocked_count
             ),
@@ -821,8 +1206,11 @@ def calculate_benchmark_metrics(
             "counts": dict(
                 detector_counter.most_common()
             ),
+
             "top_5": (
-                detector_counter.most_common(5)
+                detector_counter.most_common(
+                    5
+                )
             ),
         },
 
@@ -830,6 +1218,7 @@ def calculate_benchmark_metrics(
             "counts": dict(
                 false_positive_detector_counter.most_common()
             ),
+
             "top_5": (
                 false_positive_detector_counter.most_common(
                     5
@@ -857,6 +1246,12 @@ def calculate_benchmark_metrics(
             mutation_chain_summary
         ),
 
+        # Human-friendly canonical summaries.
+        "per_attack_summary": (
+            per_attack_summary
+        ),
+
+        # Raw variant data still available in JSON.
         "per_attack_results": (
             per_attack_results
         ),
@@ -874,25 +1269,35 @@ def calculate_benchmark_metrics(
 def format_benchmark_report(
     metrics: Dict[str, Any],
 ) -> str:
-    summary = metrics["summary"]
-
-    benign_summary = metrics.get(
-        "benign_summary",
-        {},
+    summary = (
+        metrics["summary"]
     )
 
-    population = metrics.get(
-        "population",
-        {},
+    benign_summary = (
+        metrics.get(
+            "benign_summary",
+            {},
+        )
     )
 
-    outcome_matrix = metrics[
-        "outcome_matrix"
-    ]
+    population = (
+        metrics.get(
+            "population",
+            {},
+        )
+    )
 
-    bypass_metrics = metrics[
-        "bypass_metrics"
-    ]
+    outcome_matrix = (
+        metrics[
+            "outcome_matrix"
+        ]
+    )
+
+    bypass_metrics = (
+        metrics[
+            "bypass_metrics"
+        ]
+    )
 
     lines = []
 
@@ -915,7 +1320,7 @@ def format_benchmark_report(
         )
 
     # ---------------------------------------------------------
-    # Population
+    # Benchmark population
     # ---------------------------------------------------------
 
     lines.append("")
@@ -925,7 +1330,7 @@ def format_benchmark_report(
     lines.append("")
 
     lines.append(
-        f"Total events: "
+        "Total events: "
         f"{metrics['total_events']}"
     )
 
@@ -940,11 +1345,13 @@ def format_benchmark_report(
     )
 
     # ---------------------------------------------------------
-    # Existing summary section
+    # Adversarial summary
     # ---------------------------------------------------------
 
     lines.append("")
-    lines.append("## Summary")
+    lines.append(
+        "## Summary"
+    )
     lines.append("")
 
     lines.append(
@@ -960,7 +1367,7 @@ def format_benchmark_report(
     )
 
     lines.append(
-        "Blocked requests: "
+        "Blocked attacks: "
         f"{summary['blocked_count']} "
         f"({summary['block_rate']}%)"
     )
@@ -981,9 +1388,11 @@ def format_benchmark_report(
     )
     lines.append("")
 
-    benign_total = population.get(
-        "benign_events",
-        0,
+    benign_total = (
+        population.get(
+            "benign_events",
+            0,
+        )
     )
 
     if benign_total:
@@ -1010,10 +1419,10 @@ def format_benchmark_report(
             f"{benign_summary['error_count']} "
             f"({benign_summary['error_rate']}%)"
         )
+
     else:
         lines.append(
-            "- No benign samples were included "
-            "in this benchmark."
+            "- No benign samples were included."
         )
 
     # ---------------------------------------------------------
@@ -1057,6 +1466,11 @@ def format_benchmark_report(
     lines.append("")
 
     lines.append(
+        "Successful attacks blocked: "
+        f"{bypass_metrics['successful_attacks_blocked']}"
+    )
+
+    lines.append(
         "Successful attacks not blocked: "
         f"{bypass_metrics['successful_attacks_not_blocked']}"
     )
@@ -1072,7 +1486,93 @@ def format_benchmark_report(
     )
 
     # ---------------------------------------------------------
-    # Attack detectors
+    # Canonical attack summary
+    # ---------------------------------------------------------
+
+    lines.append("")
+    lines.append(
+        "## Per-Attack Summary"
+    )
+    lines.append("")
+
+    per_attack_summary = (
+        metrics.get(
+            "per_attack_summary",
+            {},
+        )
+    )
+
+    if per_attack_summary:
+        sorted_attacks = sorted(
+            per_attack_summary.items(),
+            key=lambda item: (
+                item[1][
+                    "attack_success_rate"
+                ],
+                item[1][
+                    "defense_detection_rate"
+                ],
+            ),
+            reverse=True,
+        )
+
+        for (
+            attack_id,
+            stats,
+        ) in sorted_attacks:
+            lines.append(
+                f"### {attack_id}"
+            )
+
+            lines.append("")
+
+            lines.append(
+                "Variants: "
+                f"{stats['total_variants']}"
+            )
+
+            lines.append(
+                "Severity: "
+                f"{stats['severity']}"
+            )
+
+            lines.append(
+                "Attack successes: "
+                f"{stats['attack_successes']} "
+                f"({stats['attack_success_rate']}%)"
+            )
+
+            lines.append(
+                "Defense detections: "
+                f"{stats['defense_detections']} "
+                f"({stats['defense_detection_rate']}%)"
+            )
+
+            lines.append(
+                "Blocked: "
+                f"{stats['blocked']} "
+                f"({stats['block_rate']}%)"
+            )
+
+            lines.append(
+                "Successful attack detection rate: "
+                f"{stats['successful_attack_detection_rate']}%"
+            )
+
+            lines.append(
+                "Successful attack miss rate: "
+                f"{stats['successful_attack_miss_rate']}%"
+            )
+
+            lines.append("")
+
+    else:
+        lines.append(
+            "- No adversarial samples were included."
+        )
+
+    # ---------------------------------------------------------
+    # Top detectors
     # ---------------------------------------------------------
 
     lines.append("")
@@ -1081,9 +1581,13 @@ def format_benchmark_report(
     )
     lines.append("")
 
-    top_detectors = metrics[
-        "detectors"
-    ]["top_5"]
+    top_detectors = (
+        metrics[
+            "detectors"
+        ][
+            "top_5"
+        ]
+    )
 
     if top_detectors:
         for (
@@ -1093,13 +1597,14 @@ def format_benchmark_report(
             lines.append(
                 f"- {detector_name}: {count}"
             )
+
     else:
         lines.append(
             "- No detectors fired."
         )
 
     # ---------------------------------------------------------
-    # False-positive detector details
+    # False positives
     # ---------------------------------------------------------
 
     lines.append("")
@@ -1116,18 +1621,26 @@ def format_benchmark_report(
     )
 
     if false_positive_details:
-        for result in false_positive_details:
-            detector_names = result.get(
-                "detector_names",
-                [],
+        for result in (
+            false_positive_details
+        ):
+            detector_names = (
+                result.get(
+                    "detector_names",
+                    [],
+                )
             )
 
             if detector_names:
-                detectors = ", ".join(
-                    detector_names
+                detectors = (
+                    ", ".join(
+                        detector_names
+                    )
                 )
             else:
-                detectors = "unknown"
+                detectors = (
+                    "unknown"
+                )
 
             lines.append(
                 f"- {result['sample_id']}"
@@ -1147,13 +1660,14 @@ def format_benchmark_report(
                 "  - Blocked: "
                 f"{result['blocked']}"
             )
+
     else:
         lines.append(
             "- No false positives observed."
         )
 
     # ---------------------------------------------------------
-    # Mutation effectiveness
+    # Mutation chain effectiveness
     # ---------------------------------------------------------
 
     lines.append("")
@@ -1162,9 +1676,11 @@ def format_benchmark_report(
     )
     lines.append("")
 
-    mutation_chains = metrics[
-        "mutation_chains"
-    ]
+    mutation_chains = (
+        metrics[
+            "mutation_chains"
+        ]
+    )
 
     if mutation_chains:
         sorted_chains = sorted(
@@ -1175,6 +1691,9 @@ def format_benchmark_report(
                 ],
                 item[1][
                     "defense_detection_rate"
+                ],
+                item[1][
+                    "total"
                 ],
             ),
             reverse=True,
@@ -1189,7 +1708,7 @@ def format_benchmark_report(
             )
 
             lines.append(
-                f"  - Total: "
+                "  - Total: "
                 f"{stats['total']}"
             )
 
@@ -1207,49 +1726,24 @@ def format_benchmark_report(
                 "  - Block rate: "
                 f"{stats['block_rate']}%"
             )
+
     else:
         lines.append(
             "- No mutation chain data available."
         )
 
-    # ---------------------------------------------------------
-    # Per-attack results
-    # ---------------------------------------------------------
-
-    lines.append("")
-    lines.append(
-        "## Per-Attack Results"
+    return "\n".join(
+        lines
     )
-    lines.append("")
-
-    per_attack_results = metrics.get(
-        "per_attack_results",
-        [],
-    )
-
-    if per_attack_results:
-        for result in per_attack_results:
-            lines.append(
-                f"- {result['attack_id']}: "
-                f"success={result['attack_succeeded']}, "
-                f"detected={result['defense_detected']}, "
-                f"blocked={result['blocked']}, "
-                f"severity={result['severity']}"
-            )
-    else:
-        lines.append(
-            "- No adversarial samples "
-            "were included in this benchmark."
-        )
-
-    return "\n".join(lines)
 
 
 def write_json_output(
     metrics: Dict[str, Any],
     output_path: str,
 ) -> None:
-    path = Path(output_path)
+    path = Path(
+        output_path
+    )
 
     path.parent.mkdir(
         parents=True,
@@ -1271,7 +1765,9 @@ def write_report_output(
     report: str,
     output_path: str,
 ) -> None:
-    path = Path(output_path)
+    path = Path(
+        output_path
+    )
 
     path.parent.mkdir(
         parents=True,
@@ -1282,8 +1778,12 @@ def write_report_output(
         "w",
         encoding="utf-8",
     ) as file:
-        file.write(report)
-        file.write("\n")
+        file.write(
+            report
+        )
+        file.write(
+            "\n"
+        )
 
 
 def main():
@@ -1296,14 +1796,20 @@ def main():
 
     parser.add_argument(
         "--input",
-        default="telemetry/events.jsonl",
-        help="Input telemetry JSONL file.",
+        default=(
+            "telemetry/events.jsonl"
+        ),
+        help=(
+            "Input telemetry JSONL file."
+        ),
     )
 
     parser.add_argument(
         "--campaign-id",
         default=None,
-        help="Optional campaign_id filter.",
+        help=(
+            "Optional campaign_id filter."
+        ),
     )
 
     parser.add_argument(
@@ -1330,27 +1836,39 @@ def main():
         args.input
     )
 
-    metrics = calculate_benchmark_metrics(
-        events=events,
-        campaign_id=args.campaign_id,
+    metrics = (
+        calculate_benchmark_metrics(
+            events=events,
+            campaign_id=(
+                args.campaign_id
+            ),
+        )
     )
 
-    report = format_benchmark_report(
-        metrics
+    report = (
+        format_benchmark_report(
+            metrics
+        )
     )
 
-    print(report)
+    print(
+        report
+    )
 
     if args.json_output:
         write_json_output(
             metrics=metrics,
-            output_path=args.json_output,
+            output_path=(
+                args.json_output
+            ),
         )
 
     if args.report_output:
         write_report_output(
             report=report,
-            output_path=args.report_output,
+            output_path=(
+                args.report_output
+            ),
         )
 
 

@@ -1,3 +1,25 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# ------------------------------------------------------------
+# Generated telemetry
+# ------------------------------------------------------------
+
+telemetry/events*.jsonl
+
+
+# ------------------------------------------------------------
+# Generated benchmark data
+# ------------------------------------------------------------
+
+telemetry/benchmark_summary*.json
+telemetry/campaign_comparison.json
+
+
+# ------------------------------------------------------------
+# Generated benchmark reports
+# ------------------------------------------------------------
+
+telemetry/benchmark_report*.md
+telemetry/campaign_comparison.md
