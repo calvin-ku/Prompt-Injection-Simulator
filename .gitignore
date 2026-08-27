@@ -1,25 +1,25 @@
-# Python cache
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
 
-# ------------------------------------------------------------
+# Virtual environments
+.venv/
+venv/
+env/
+
 # Generated telemetry
-# ------------------------------------------------------------
-
 telemetry/events*.jsonl
 
-
-# ------------------------------------------------------------
-# Generated benchmark data
-# ------------------------------------------------------------
-
+# Generated benchmark JSON
 telemetry/benchmark_summary*.json
 telemetry/campaign_comparison.json
 
-
-# ------------------------------------------------------------
 # Generated benchmark reports
-# ------------------------------------------------------------
-
 telemetry/benchmark_report*.md
 telemetry/campaign_comparison.md
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
