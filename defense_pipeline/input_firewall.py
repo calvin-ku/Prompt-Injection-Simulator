@@ -38,7 +38,7 @@ class InputFirewall:
                 r"developer message|bypass safety|ignore instructions|"
                 r"print ['\"]?SYSTEM_COMPROMISED|SYSTEM_COMPROMISED)"
             ),
-            "score": 40,
+            "score": 50,
         },
         "secret_exfiltration": {
             "pattern": re.compile(
