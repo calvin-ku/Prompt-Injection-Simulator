@@ -38,13 +38,19 @@ class TelemetryBuilder:
         owasp_id: Optional[str],
         atlas_id: Optional[str],
     ) -> Dict[str, Any]:
+        """
+        Build telemetry for an adversarial attack execution.
+        """
         event_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc).isoformat()
 
         environment = target_config.metadata.get("environment", "unknown")
 
-        firewall_features = response.firewall_result.get("features", {})
-        scrubber_features = response.output_scrubber_result.get("features", {})
+        firewall_result = response.firewall_result or {}
+        scrubber_result = response.output_scrubber_result or {}
+
+        firewall_features = firewall_result.get("features", {})
+        scrubber_features = scrubber_result.get("features", {})
 
         detector_names = self._extract_detector_names(response)
 
@@ -115,12 +121,12 @@ class TelemetryBuilder:
                 "blocked": response.blocked,
                 "detection_mechanism": response.detection_mechanism,
                 "detector_names": detector_names,
-                "firewall_result": self._sanitize_value(response.firewall_result),
+                "firewall_result": self._sanitize_value(firewall_result),
                 "output_scrubber_result": self._sanitize_value(
-                    response.output_scrubber_result
+                    scrubber_result
                 ),
-                "risk_score": response.firewall_result.get("risk_score"),
-                "firewall_action": response.firewall_result.get("action"),
+                "risk_score": firewall_result.get("risk_score"),
+                "firewall_action": firewall_result.get("action"),
                 "firewall_entropy": firewall_features.get("entropy"),
                 "output_entropy": scrubber_features.get("entropy"),
             },
@@ -158,6 +164,132 @@ class TelemetryBuilder:
 
             "reproducibility": {
                 "random_seed": seed,
+            },
+        }
+
+    def build_benign_event(
+        self,
+        campaign_id: str,
+        sample_id: str,
+        category: str,
+        prompt: str,
+        expected_result: str,
+        response: TargetResponse,
+        target_config: TargetConfig,
+    ) -> Dict[str, Any]:
+        """
+        Build telemetry for a legitimate benign request.
+
+        A defense detection on benign traffic is counted as a
+        false-positive detection.
+
+        A block on benign traffic is recorded separately so the benchmark
+        can distinguish false-positive detection from actual user impact.
+        """
+        event_id = str(uuid.uuid4())
+        timestamp = datetime.now(timezone.utc).isoformat()
+
+        environment = target_config.metadata.get("environment", "unknown")
+
+        firewall_result = response.firewall_result or {}
+        scrubber_result = response.output_scrubber_result or {}
+
+        firewall_features = firewall_result.get("features", {})
+        scrubber_features = scrubber_result.get("features", {})
+
+        detector_names = self._extract_detector_names(response)
+
+        false_positive = bool(response.detected)
+        benign_blocked = bool(response.blocked)
+
+        benchmark_succeeded = (
+            not false_positive
+            and not benign_blocked
+            and response.error_type is None
+        )
+
+        return {
+            "event_id": event_id,
+            "campaign_id": campaign_id,
+            "timestamp": timestamp,
+            "schema_version": self.SCHEMA_VERSION,
+
+            "event": {
+                "kind": "alert" if response.detected else "event",
+                "category": "llm_security",
+                "type": "benign_test",
+                "outcome": (
+                    "success"
+                    if benchmark_succeeded
+                    else "failure"
+                ),
+                "status": "error" if response.error_type else "completed",
+            },
+
+            "sample": {
+                "id": sample_id,
+                "sample_id": sample_id,
+                "category": category,
+                "expected_result": expected_result,
+            },
+
+            "target": {
+                "name": target_config.name,
+                "model": target_config.model,
+                "environment": environment,
+                "container": socket.gethostname(),
+                "endpoint": target_config.endpoint,
+                "metadata": self._sanitize_value(target_config.metadata),
+            },
+
+            "defense": {
+                "detected": response.detected,
+                "blocked": response.blocked,
+                "detection_mechanism": response.detection_mechanism,
+                "detector_names": detector_names,
+                "firewall_result": self._sanitize_value(firewall_result),
+                "output_scrubber_result": self._sanitize_value(
+                    scrubber_result
+                ),
+                "risk_score": firewall_result.get("risk_score"),
+                "firewall_action": firewall_result.get("action"),
+                "firewall_entropy": firewall_features.get("entropy"),
+                "output_entropy": scrubber_features.get("entropy"),
+            },
+
+            "features": {
+                "prompt_length": len(prompt),
+                "prompt_entropy": shannon_entropy(prompt),
+                "firewall_features": firewall_features,
+                "output_features": scrubber_features,
+            },
+
+            "result": {
+                "false_positive": false_positive,
+                "benign_blocked": benign_blocked,
+                "defense_detected": response.detected,
+                "blocked": response.blocked,
+                "error": response.error_type is not None,
+            },
+
+            "performance": {
+                "latency_ms": response.latency_ms,
+            },
+
+            "request_response": {
+                "prompt": prompt,
+                "tool_calls": response.tool_calls,
+                "response_preview": response.output_text[:500],
+                "raw_response": self._sanitize_value(response.raw_response),
+            },
+
+            "error": {
+                "type": response.error_type,
+                "message": response.error_message,
+            },
+
+            "reproducibility": {
+                "random_seed": None,
             },
         }
 
