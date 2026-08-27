@@ -85,7 +85,33 @@ def print_attack_result(result, args):
             result.target_response.latency_ms
         ),
 
-        "random_seed": args.seed,
+        reproducibility = result.telemetry.get(
+            "reproducibility",
+            {},
+        )
+
+        ...
+
+        "base_seed": reproducibility.get(
+            "base_seed",
+            args.seed,
+        ),
+        "variant_seed": reproducibility.get(
+            "variant_seed",
+            reproducibility.get("random_seed"),
+        ),
+        "variant_index": reproducibility.get(
+            "variant_index",
+            result.telemetry.get(
+                "attack",
+                {},
+            ).get("variant_index", 1),
+        ),
+        "generation_attempt": reproducibility.get(
+            "generation_attempt",
+            1,
+        ),
+
         "target": args.target,
     }, indent=2))
 
