@@ -1,4 +1,6 @@
+# ------------------------------------------------------------
 # Python
+# ------------------------------------------------------------
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -8,10 +10,17 @@ __pycache__/
 venv/
 env/
 
+# Test / coverage output
+.coverage
+htmlcov/
+.coverage.*
+
+# ------------------------------------------------------------
 # Generated telemetry
+# ------------------------------------------------------------
 telemetry/events*.jsonl
 
-# Generated benchmark JSON
+# Generated benchmark data
 telemetry/benchmark_summary*.json
 telemetry/campaign_comparison.json
 
@@ -19,7 +28,16 @@ telemetry/campaign_comparison.json
 telemetry/benchmark_report*.md
 telemetry/campaign_comparison.md
 
-# OS/editor files
+# ------------------------------------------------------------
+# Environment / secrets
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------
+# IDE / OS
+# ------------------------------------------------------------
 .DS_Store
-.vscode/
 .idea/
+.vscode/
