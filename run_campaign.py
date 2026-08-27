@@ -46,74 +46,71 @@ def load_benign_samples(path: str):
 
 
 def print_attack_result(result, args):
-    """
-    Print a compact attack result to the console.
-    """
-    print(json.dumps({
-        "event_type": "adversarial_test",
-        "campaign_id": result.campaign_id,
-        "event_id": result.event_id,
-        "attack_id": result.attack_id,
+    reproducibility = result.telemetry.get(
+        "reproducibility",
+        {},
+    )
 
-        "variant_index": (
-            result.telemetry
-            .get("attack", {})
-            .get("variant_index", 1)
-        ),
+    telemetry_result = result.telemetry.get(
+        "result",
+        {},
+    )
 
-        "owasp_id": result.owasp_id,
-        "atlas_id": result.atlas_id,
-        "mutation_chain": result.mutation_chain,
-
-        "attack_succeeded": (
-            result.evaluation.succeeded
-        ),
-
-        "defense_detected": (
-            result.target_response.detected
-        ),
-
-        "blocked": (
-            result.target_response.blocked
-        ),
-
-        "detection_mechanism": (
-            result.target_response.detection_mechanism
-        ),
-
-        "latency_ms": (
-            result.target_response.latency_ms
-        ),
-
-        reproducibility = result.telemetry.get(
-            "reproducibility",
-            {},
+    print(
+        json.dumps(
+            {
+                "event_type": result.telemetry.get(
+                    "event",
+                    {},
+                ).get(
+                    "type",
+                    "adversarial_test",
+                ),
+                "campaign_id": result.campaign_id,
+                "event_id": result.event_id,
+                "attack_id": result.attack_id,
+                "variant_index": result.telemetry.get(
+                    "attack",
+                    {},
+                ).get(
+                    "variant_index",
+                    reproducibility.get(
+                        "variant_index",
+                        1,
+                    ),
+                ),
+                "owasp_id": result.owasp_id,
+                "atlas_id": result.atlas_id,
+                "mutation_chain": result.mutation_chain,
+                "attack_succeeded": telemetry_result.get(
+                    "attack_succeeded",
+                    False,
+                ),
+                "defense_detected": result.target_response.detected,
+                "blocked": result.target_response.blocked,
+                "detection_mechanism": (
+                    result.target_response.detection_mechanism
+                ),
+                "latency_ms": result.target_response.latency_ms,
+                "base_seed": reproducibility.get(
+                    "base_seed",
+                    args.seed,
+                ),
+                "variant_seed": reproducibility.get(
+                    "variant_seed",
+                    reproducibility.get(
+                        "random_seed"
+                    ),
+                ),
+                "generation_attempt": reproducibility.get(
+                    "generation_attempt",
+                    1,
+                ),
+                "target": args.target,
+            },
+            indent=2,
         )
-
-        ...
-
-        "base_seed": reproducibility.get(
-            "base_seed",
-            args.seed,
-        ),
-        "variant_seed": reproducibility.get(
-            "variant_seed",
-            reproducibility.get("random_seed"),
-        ),
-        "variant_index": reproducibility.get(
-            "variant_index",
-            result.telemetry.get(
-                "attack",
-                {},
-            ).get("variant_index", 1),
-        ),
-        "generation_attempt": reproducibility.get(
-            "generation_attempt",
-            1,
-        ),
-
-        "target": args.target,
-    }, indent=2))
+    )
 
 
 def print_benign_result(result, args):
