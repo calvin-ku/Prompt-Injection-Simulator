@@ -48,10 +48,15 @@ class CampaignOrchestrator:
         random_depth: int = 3,
         campaign_id: Optional[str] = None,
     ) -> AttackExecutionResult:
+        """
+        Run one canonical attack once.
+        """
         campaign_id = campaign_id or str(uuid4())
 
         if attack_id not in attacks:
-            raise ValueError(f"Unknown attack_id: {attack_id}")
+            raise ValueError(
+                f"Unknown attack_id: {attack_id}"
+            )
 
         attack = attacks[attack_id]
 
@@ -74,27 +79,58 @@ class CampaignOrchestrator:
         attack_ids: Optional[List[str]] = None,
         mutations: Optional[List[str]] = None,
         random_depth: int = 3,
+        variants_per_attack: int = 1,
         campaign_id: Optional[str] = None,
     ) -> List[AttackExecutionResult]:
+        """
+        Run a full adversarial campaign.
+
+        Each canonical attack can be executed multiple times
+        using variants_per_attack.
+
+        Example:
+            8 attacks x 100 variants = 800 executions.
+        """
         campaign_id = campaign_id or str(uuid4())
 
-        selected_attack_ids = attack_ids or list(attacks.keys())
+        if variants_per_attack < 1:
+            raise ValueError(
+                "variants_per_attack must be at least 1"
+            )
+
+        selected_attack_ids = (
+            attack_ids or list(attacks.keys())
+        )
 
         results = []
 
         for attack_id in selected_attack_ids:
-            result = self.run_single_attack(
-                attack_id=attack_id,
-                attacks=attacks,
-                owasp_mapping=owasp_mapping,
-                atlas_mapping=atlas_mapping,
-                seed=seed,
-                mutations=mutations,
-                random_depth=random_depth,
-                campaign_id=campaign_id,
-            )
+            for variant_index in range(
+                1,
+                variants_per_attack + 1,
+            ):
+                result = self.run_single_attack(
+                    attack_id=attack_id,
+                    attacks=attacks,
+                    owasp_mapping=owasp_mapping,
+                    atlas_mapping=atlas_mapping,
+                    seed=seed,
+                    mutations=mutations,
+                    random_depth=random_depth,
+                    campaign_id=campaign_id,
+                )
 
-            results.append(result)
+                result.telemetry.setdefault(
+                    "attack",
+                    {},
+                )["variant_index"] = variant_index
+
+                result.telemetry.setdefault(
+                    "reproducibility",
+                    {},
+                )["variant_index"] = variant_index
+
+                results.append(result)
 
         return results
 
@@ -105,15 +141,19 @@ class CampaignOrchestrator:
         campaign_id: Optional[str] = None,
     ) -> List[BenignExecutionResult]:
         """
-        Run legitimate traffic through the same target/defense
-        pipeline and attach structured telemetry to each result.
+        Run legitimate traffic through the same target
+        and defense pipeline.
+
+        Benign prompts are not mutated.
         """
         campaign_id = campaign_id or str(uuid4())
 
         results = []
 
         for sample in samples:
-            result = runner.run_sample(sample)
+            result = runner.run_sample(
+                sample
+            )
 
             result.telemetry = (
                 self.telemetry_builder.build_benign_event(
@@ -121,9 +161,15 @@ class CampaignOrchestrator:
                     sample_id=result.sample_id,
                     category=result.category,
                     prompt=result.prompt,
-                    expected_result=result.expected_result,
-                    response=result.target_response,
-                    target_config=runner.target.config,
+                    expected_result=(
+                        result.expected_result
+                    ),
+                    response=(
+                        result.target_response
+                    ),
+                    target_config=(
+                        runner.target.config
+                    ),
                 )
             )
 
@@ -136,9 +182,17 @@ class CampaignOrchestrator:
         results: List[ExecutionResult],
         output_path: str,
     ) -> None:
-        logger = ECSJsonlLogger(output_path)
+        """
+        Write all campaign telemetry to one JSONL file.
+        """
+        logger = ECSJsonlLogger(
+            output_path
+        )
 
         logger.write_events(
-            (result.telemetry for result in results),
+            (
+                result.telemetry
+                for result in results
+            ),
             append=False,
         )
