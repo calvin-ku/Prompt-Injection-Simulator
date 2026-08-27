@@ -39,8 +39,17 @@ class TargetResponse:
     output_text: str
     latency_ms: int
     tool_calls: List[str] = field(default_factory=list)
+
     detected: bool = False
     detection_mechanism: Optional[str] = None
+
+    blocked: bool = False
+    firewall_result: Dict[str, Any] = field(default_factory=dict)
+    output_scrubber_result: Dict[str, Any] = field(default_factory=dict)
+
+    error_type: Optional[str] = None
+    error_message: Optional[str] = None
+
     raw_response: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -64,4 +73,3 @@ class AttackExecutionResult:
     target_response: TargetResponse
     evaluation: EvaluationResult
     telemetry: Dict[str, Any]
-    

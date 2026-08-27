@@ -4,8 +4,8 @@ import json
 from attack_engine.generator import AttackEngine
 from attack_engine.mutators import PayloadMutator
 from attack_engine.orchestrator import CampaignOrchestrator
+from attack_engine.target import build_target_from_name
 from attack_engine.validator import CatalogValidator
-from attack_engine.target import MockSafeTarget
 
 
 def parse_mutations(raw: str):
@@ -63,8 +63,36 @@ def main():
     )
 
     parser.add_argument(
+        "--target",
+        choices=["mock", "local"],
+        default="mock",
+        help="Target backend to run attacks against.",
+    )
+
+    parser.add_argument(
+        "--firewall-mode",
+        choices=["block", "monitor"],
+        default=None,
+        help="Firewall mode for --target local.",
+    )
+
+    parser.add_argument(
+        "--target-mode",
+        choices=["safe", "echo", "vulnerable"],
+        default=None,
+        help="Local target app mode for --target local.",
+    )
+
+    parser.add_argument(
+        "--environment",
+        default="local",
+        help="Environment label written into telemetry.",
+    )
+
+    parser.add_argument(
         "--output",
-        default="runs/latest_campaign.jsonl",
+        default="telemetry/events.jsonl",
+        help="Path to JSONL telemetry output.",
     )
 
     args = parser.parse_args()
@@ -81,7 +109,12 @@ def main():
         atlas_mapping_path=args.atlas_mapping,
     )
 
-    target = MockSafeTarget()
+    target = build_target_from_name(
+        target_name=args.target,
+        firewall_mode=args.firewall_mode,
+        target_mode=args.target_mode,
+        environment=args.environment,
+    )
 
     engine = AttackEngine(
         target=target,
@@ -130,8 +163,11 @@ def main():
             "mutation_chain": result.mutation_chain,
             "attack_succeeded": result.evaluation.succeeded,
             "defense_detected": result.target_response.detected,
+            "blocked": result.target_response.blocked,
+            "detection_mechanism": result.target_response.detection_mechanism,
             "latency_ms": result.target_response.latency_ms,
             "random_seed": args.seed,
+            "target": args.target,
         }, indent=2))
 
 
