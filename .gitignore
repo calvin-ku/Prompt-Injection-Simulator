@@ -41,3 +41,6 @@ telemetry/campaign_comparison.md
 .DS_Store
 .idea/
 .vscode/
+
+# Docker-generated output
+docker-output/
