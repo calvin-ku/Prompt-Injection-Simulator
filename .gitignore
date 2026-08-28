@@ -44,3 +44,5 @@ telemetry/campaign_comparison.md
 
 # Docker-generated output
 docker-output/
+
+ci-output/

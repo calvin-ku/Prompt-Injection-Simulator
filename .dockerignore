@@ -37,3 +37,5 @@ htmlcov/
 !.env.example
 
 docker-output/
+
+ci-output/
