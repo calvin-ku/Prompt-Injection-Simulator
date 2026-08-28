@@ -19,6 +19,7 @@ htmlcov/
 # Generated telemetry
 # ------------------------------------------------------------
 telemetry/events*.jsonl
+telemetry/experiments/
 
 # Generated benchmark data
 telemetry/benchmark_summary*.json
@@ -48,3 +49,4 @@ telemetry/campaign_comparison.md
 docker-output/
 
 ci-output/
+
