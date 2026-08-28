@@ -23,6 +23,8 @@ telemetry/events*.jsonl
 # Generated benchmark data
 telemetry/benchmark_summary*.json
 telemetry/campaign_comparison.json
+telemetry/block_100.jsonl
+telemetry/monitor_100.jsonl
 
 # Generated benchmark reports
 telemetry/benchmark_report*.md
