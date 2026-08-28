@@ -15,6 +15,7 @@ COPY attack_engine ./attack_engine
 COPY defense_pipeline ./defense_pipeline
 COPY telemetry ./telemetry
 COPY run_campaign.py .
+COPY run_experiment.py ./
 
 ENTRYPOINT ["python", "run_campaign.py"]
 

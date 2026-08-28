@@ -45,6 +45,33 @@ def load_benign_samples(path: str):
     return samples
 
 
+def annotate_experiment_telemetry(
+    results,
+    experiment_id: str | None,
+):
+    """
+    Attach a shared experiment identifier to every event in a campaign.
+
+    ``campaign_id`` still identifies this one invocation of the campaign
+    runner.  ``experiment_id`` groups related campaign invocations, such as
+    the monitor and block executions in a paired benchmark.
+    """
+    if not experiment_id:
+        return
+
+    for result in results:
+        telemetry = result.telemetry
+        telemetry["experiment_id"] = experiment_id
+
+        experiment = telemetry.get("experiment")
+
+        if not isinstance(experiment, dict):
+            experiment = {}
+
+        experiment["id"] = experiment_id
+        telemetry["experiment"] = experiment
+
+
 def print_attack_result(result, args):
     reproducibility = result.telemetry.get(
         "reproducibility",
@@ -295,6 +322,15 @@ def main():
         ),
     )
 
+    parser.add_argument(
+        "--experiment-id",
+        default=None,
+        help=(
+            "Optional ID that groups related campaigns into one "
+            "benchmark experiment."
+        ),
+    )
+
     # ---------------------------------------------------------
     # Output
     # ---------------------------------------------------------
@@ -499,6 +535,11 @@ def main():
         + benign_results
     )
 
+    annotate_experiment_telemetry(
+        results=all_results,
+        experiment_id=args.experiment_id,
+    )
+
     # ---------------------------------------------------------
     # Write telemetry once
     #
@@ -553,6 +594,8 @@ def main():
     print(json.dumps({
         "campaign_summary": {
             "campaign_id": campaign_id,
+
+            "experiment_id": args.experiment_id,
 
             "canonical_attacks": (
                 canonical_attack_count
