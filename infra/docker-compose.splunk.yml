@@ -1,0 +1,22 @@
+services:
+  splunk:
+    image: splunk/splunk:10.2.7
+    container_name: prompt-injection-splunk
+
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD}
+      SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN}
+
+    ports:
+      - "8000:8000"
+      - "8088:8088"
+
+    volumes:
+      - splunk-var:/opt/splunk/var
+      - splunk-etc:/opt/splunk/etc
+
+volumes:
+  splunk-var:
+  splunk-etc:
