@@ -1,0 +1,37 @@
+# Git
+.git
+.github
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Tests are not needed in the runtime image
+tests/
+
+# Generated telemetry
+telemetry/events*.jsonl
+telemetry/benchmark_summary*.json
+telemetry/benchmark_report*.md
+telemetry/campaign_comparison.json
+telemetry/campaign_comparison.md
+
+# Coverage
+.coverage
+htmlcov/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
