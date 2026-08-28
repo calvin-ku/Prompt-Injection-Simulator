@@ -1,1 +1,5 @@
 finish containerizing the project and add github workflows then clean up and start the readme and also connect splunk
+
+done: building docker image and connecting it to splunk but i still have to build out the dashboard to work properly with various types of campaigns right now it works statically with only certain campaign id instead of it working automatically for any type of experiment the solution im building is making a new experiment file which lays over the existing cli and should have a cleaner output so telemetry can be generalized in splunk
+
+work on: readme
