@@ -249,6 +249,16 @@ python run_experiment.py \
   --include-benign
 ```
 
+### Or this for a random seed
+
+```bash
+SEED=$(python -c 'import secrets; print(secrets.randbits(32))')
+python run_experiment.py \
+  --seed "$SEED" \
+  --variants-per-attack 100 \
+  --include-benign
+```
+
 The runner executes both firewall modes, validates that their adversarial payload pairs match, and writes artifacts to `telemetry/experiments/<experiment_id>/`.
 
 Useful commands:
