@@ -592,6 +592,25 @@ python run_experiment.py \
   --insecure
 ```
 
+### Final Mutation Analysis Summary
+
+The metrics below summarize the **16,000 adversarial executions** from the
+paired benchmark. They should not be added together as a population total
+because several rows describe overlapping subsets or aggregate statistics.
+
+The experiment generated **8,000 unique adversarial payload variants** and
+replayed each variant once in `monitor` mode and once in `block` mode,
+resulting in **16,000 adversarial executions**.
+
+For example, an execution can be counted as both a **successful attack** and a
+**defense detection**. In the final benchmark, all 1,087 successful executions
+were also detected, which is why the success and detection counts overlap.
+
+The 24 benign controls were also replayed in both modes, producing an
+additional **48 benign execution events**. Benign events are not included in
+the mutation-chain analysis because they are not processed by the adversarial
+mutation engine.
+
 | Metric | Result |
 | --- | --- |
 | Unique adversarial variants | **8,000** |
@@ -604,6 +623,15 @@ python run_experiment.py \
 | Largest successful chain population | **1,000 successes** |
 | Chains with 100% detection | **20** |
 | Lowest observed detection rate | **0.00%** |
+
+#### How the 16,000 adversarial executions break down
+| Outcome | Executions |
+| --- | ---: |
+| Successful + detected | **1,087** |
+| Successful + undetected | **0** |
+| Failed + detected | **13,147** |
+| Failed + undetected | **1,766** |
+| **Total adversarial executions** | **16,000** |
 
 <img width="920" height="495" alt="Screenshot 2026-08-29 at 1 32 26 AM" src="https://github.com/user-attachments/assets/250a106a-a828-4a40-9f73-9a49a565361c" />
 
