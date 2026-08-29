@@ -13,6 +13,8 @@
 >
 > The platform currently runs end-to-end against a controlled local target, supports deterministic monitor-versus-block experiments, emits ECS-inspired JSONL telemetry, exports completed experiments to Splunk through HEC, and is covered by an automated Python test suite and GitHub Actions CI. Splunk is an optional downstream analytics layer; the benchmark can be run entirely from the CLI.
 
+<img width="1470" height="567" alt="Screenshot 2026-08-29 at 1 23 48 AM" src="https://github.com/user-attachments/assets/70a97f41-3b6e-4337-8efb-04c16a426d88" />
+
 **Screenshot here:** Add a dashboard overview showing the key KPIs, attack outcomes, and monitor-vs-block comparison.
 
 ## At a glance
@@ -299,7 +301,14 @@ python run_experiment.py \
 
 Open Splunk at `http://localhost:8000` (or use the forwarded private port in Codespaces). Do not run `docker compose ... down -v` unless you deliberately want to delete Splunk's persisted data and dashboard state.
 
-**Screenshot here:** Add the completed Splunk Dashboard Studio view, followed later by one expanded structured event.
+<img width="1470" height="567" alt="Screenshot 2026-08-29 at 1 23 48 AM" src="https://github.com/user-attachments/assets/cc3c531b-e535-4cbc-a69f-b34aaa4dd59b" />
+<img width="1470" height="312" alt="Screenshot 2026-08-29 at 1 23 57 AM" src="https://github.com/user-attachments/assets/705809ad-909c-4918-a899-3eb4b44654e0" />
+<img width="1470" height="396" alt="Screenshot 2026-08-29 at 1 24 06 AM" src="https://github.com/user-attachments/assets/228734e2-832e-4bc2-a372-ff60586963bc" />
+<img width="1470" height="408" alt="Screenshot 2026-08-29 at 1 24 14 AM" src="https://github.com/user-attachments/assets/9e79db84-0300-408f-9cda-456735605838" />
+<img width="1470" height="397" alt="Screenshot 2026-08-29 at 1 24 23 AM" src="https://github.com/user-attachments/assets/2db3fd22-d27b-4c92-88d6-661880705b43" />
+<img width="1470" height="404" alt="Screenshot 2026-08-29 at 1 24 46 AM" src="https://github.com/user-attachments/assets/125dac1b-c114-42c7-b743-3503f9c2306b" />
+<img width="1470" height="326" alt="Screenshot 2026-08-29 at 1 25 14 AM" src="https://github.com/user-attachments/assets/233c1dd3-5950-4f86-bf6c-6bdb44c817c2" />
+<img width="923" height="659" alt="Screenshot 2026-08-29 at 1 22 56 AM" src="https://github.com/user-attachments/assets/1e022ee8-63db-4a8c-a3e3-b096aa106820" />
 
 <details>
 <summary><strong>Building your own custom Splunk dashboard — searches and SPL</strong></summary>
@@ -572,7 +581,7 @@ The current suite contains 46 passing tests across catalog validation, mutators,
 
 This project is designed for controlled local targets and security benchmarking. It does not claim to represent every production LLM threat, replace a real application security review, or test third-party systems without authorization.
 
-## Final benchmark
+## Final benchmark: 1000 variations across 8 attack frameworks
 
 ```bash
 python run_experiment.py \
@@ -582,5 +591,28 @@ python run_experiment.py \
   --send-to-splunk \
   --insecure
 ```
+
+| Metric | Result |
+| --- | --- |
+| Unique adversarial variants | **8,000** |
+| Total paired executions | **16,000** |
+| Mutation chains observed | **31** |
+| Total successes | **1,087** |
+| Total detections | **14,234** |
+| Highest-success mutation chain | `conversational_noise -> json -> xml` |
+| Highest success rate | **39.78%** |
+| Largest successful chain population | **1,000 successes** |
+| Chains with 100% detection | **20** |
+| Lowest observed detection rate | **0.00%** |
+
+<img width="920" height="495" alt="Screenshot 2026-08-29 at 1 32 26 AM" src="https://github.com/user-attachments/assets/250a106a-a828-4a40-9f73-9a49a565361c" />
+
+<img width="584" height="377" alt="Screenshot 2026-08-29 at 1 31 45 AM" src="https://github.com/user-attachments/assets/6ad3b967-72c6-4ee1-bb28-c674b101b54d" />
+
+### Mutation-Chain Effectiveness Across Paired Executions
+
+The final experiment generated 8,000 unique adversarial payload variants. Each
+variant was replayed once in monitor mode and once in block mode, resulting in
+16,000 total adversarial execution events.
 
 **Benchmark here:** After the run, add a concise results table and the final dashboard screenshot. Keep the experiment ID, seed, variant count, attack success rate, detection rate, block rate, false-positive rate, benign-block rate, successful-undetected attacks, and paired prevention rate.
