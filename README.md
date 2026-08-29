@@ -11,7 +11,7 @@
 > [!NOTE]
 > **Project status**
 >
-> The platform currently runs end-to-end against a controlled local target, supports deterministic monitor-versus-block experiments, emits ECS-inspired JSONL telemetry, exports completed experiments to Splunk through HEC, and is covered by an automated Python test suite and GitHub Actions CI. Splunk is an optional downstream analytics layer; the benchmark can be run entirely from the CLI.
+> The platform currently runs end-to-end against a controlled local target, supports deterministic monitor-versus-block experiments, emits ECS-inspired JSONL telemetry, exports completed experiments to Splunk through HEC, and is covered by an automated Python test suite and GitHub Actions CI. Splunk is an optional downstream analytics layer and the benchmarks can be run entirely from the CLI instead.
 
 ## All:
 <img width="1470" height="567" alt="Screenshot 2026-08-29 at 1 23 48 AM" src="https://github.com/user-attachments/assets/70a97f41-3b6e-4337-8efb-04c16a426d88" />
@@ -38,9 +38,9 @@
 
 ## Why this project matters
 
-Large language model applications create a security problem that is different from traditional request/response software: the same natural-language interface used for legitimate instructions can also be used to manipulate application behavior. Prompt injection, jailbreak attempts, indirect instructions, data-exfiltration prompts, malicious structured payloads, tool-abuse instructions, and resource-exhaustion patterns can all be expressed through text that may look superficially valid.
+Large language model applications create a security problem that is different from traditional request/response software: the same natural-language interface used for legitimate instructions can also be used to manipulate application behavior. Prompt injection, data obfuscation, jailbreak attempts, indirect instructions, data-exfiltration prompts, malicious structured payloads, tool-abuse instructions, and resource-exhaustion patterns can all be expressed through text that may look superficially valid.
 
-Manual prompt testing is useful during development, but it does not scale or provide the repeatability needed for meaningful benchmarking. This platform is designed to answer practical questions:
+Manual prompt testing is useful during development, but it is slow and does not add scale or provide the repeatability needed for meaningful benchmarking. This platform is designed to answer practical questions:
 
 - How does the defense behave across many variations of the same attack?
 - Does it merely detect an attack, or actually prevent it?
@@ -694,3 +694,26 @@ mutation engine.
 The final experiment generated 8,000 unique adversarial payload variants. Each
 variant was replayed once in monitor mode and once in block mode, resulting in
 16,000 total adversarial execution events.
+
+## Future Work
+
+The current platform provides a reproducible local adversarial benchmark, but the next phase would focus on increasing attack coverage, strengthening defense depth, and making the environment deployable as infrastructure.
+
+- **Expand the adversarial attack catalog**
+  - Add additional prompt-injection, jailbreak, agent/tool-abuse, RAG, encoding, and data-exfiltration techniques.
+  - Broader attack coverage would make the benchmark more representative and provide more opportunities to evaluate defense weaknesses.
+- **Add a second, semantic defense layer**
+  - Complement the current rule- and feature-based firewall with a semantic classifier or risk-scoring layer that analyzes the intent of a prompt rather than relying only on structural indicators.
+  - This would create a defense-in-depth architecture and help detect attacks that use normal-looking language to avoid entropy, encoding, or pattern-based detectors.
+- **Add additional enforcement controls**
+  - Introduce controls such as rate limiting, tool-call authorization, context isolation, and stronger output/data-loss prevention policies.
+  - These defenses would allow the benchmark to measure not only whether attacks are detected, but how different security layers contribute to preventing compromise.
+- **Expand target integrations**
+  - Add pluggable adapters for additional local or hosted LLM targets while keeping the same attack, evaluation, and telemetry interfaces.
+  - This would allow the same reproducible benchmark to compare how different model/application configurations respond to identical adversarial payloads.
+- **Provision the environment with Terraform and AWS**
+  - Define the benchmark infrastructure as code and deploy the containerized platform into an isolated AWS environment.
+  - Terraform would make the infrastructure reproducible, while AWS deployment would demonstrate that the platform can move beyond a local development environment without changing the core benchmark architecture.
+- **Add security regression gates to CI**
+  - Use benchmark thresholds such as detection rate, false-positive rate, and successful-undetected attacks as automated CI checks.
+  - This would allow future defense changes to be rejected automatically if they introduce measurable security regressions.
