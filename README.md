@@ -13,9 +13,15 @@
 >
 > The platform currently runs end-to-end against a controlled local target, supports deterministic monitor-versus-block experiments, emits ECS-inspired JSONL telemetry, exports completed experiments to Splunk through HEC, and is covered by an automated Python test suite and GitHub Actions CI. Splunk is an optional downstream analytics layer; the benchmark can be run entirely from the CLI.
 
+## All:
 <img width="1470" height="567" alt="Screenshot 2026-08-29 at 1 23 48 AM" src="https://github.com/user-attachments/assets/70a97f41-3b6e-4337-8efb-04c16a426d88" />
 
-**Screenshot here:** Add a dashboard overview showing the key KPIs, attack outcomes, and monitor-vs-block comparison.
+## Monitor Mode:
+<img width="1470" height="579" alt="Screenshot 2026-08-29 at 2 01 59 AM" src="https://github.com/user-attachments/assets/0503210e-3822-4d32-80fd-191832d46045" />
+
+## Block Mode:
+<img width="1470" height="568" alt="Screenshot 2026-08-29 at 2 02 15 AM" src="https://github.com/user-attachments/assets/de0a33d6-c135-4e29-aa30-4e0897cfd16e" />
+
 
 ## At a glance
 
@@ -118,6 +124,26 @@ flowchart TD
 
 Defense pipeline: Routes each prompt through an input firewall, controlled target application, and output scrubber. Separating input and output controls reflects two different security questions: whether a request should reach the target and whether the resulting output is safe to return.
 
+### Shannon Entropy Signal
+The defense pipeline also calculates **Shannon entropy** as a lightweight signal for detecting unusually encoded or obfuscated payloads.
+Shannon entropy measures how unpredictable the characters in a payload are:
+```math
+H(X) = -\sum_{x \in X} p(x)\log_2 p(x)
+```
+Plain-language prompts usually contain repeated characters and predictable patterns, while encoded or heavily transformed payloads such as Base64, hexadecimal data, or layered obfuscation often have a more uniform character distribution and therefore higher entropy.
+In this project, entropy helps identify payloads that may be attempting to hide malicious instructions behind encoding or mutation. For example:
+
+```text
+Normal instruction
+        ↓
+Lower / typical entropy
+
+Base64 / encoded / heavily obfuscated payload
+        ↓
+Higher entropy
+        ↓
+high_entropy_payload detector
+
 ### Paired experiment architecture
 
 ```mermaid
@@ -142,7 +168,32 @@ run_experiment.py creates one experiment containing two separate campaigns: one 
 
 The architecture is intentionally layered. The catalog supplies validated, data-driven attack definitions; the attack engine creates reproducible variants without knowing the firewall's internal logic; and the defense pipeline returns a structured response for independent evaluation. Telemetry is emitted after evaluation, so the same events can power local benchmark reports or Splunk dashboards without coupling the benchmark to a SIEM.
 
-**Screenshot here:** Add a clean architecture or terminal-to-dashboard flow image after the diagrams.
+### From CLI Execution to Splunk Analysis
+
+The benchmark lifecycle shown in the architecture diagrams is also visible in
+the running system. `run_experiment.py` executes the reproducible monitor/block
+experiment, validates that both modes received the same adversarial variants,
+and exports the completed telemetry to Splunk for SIEM analysis and visualization.
+
+#### 1. Reproducible CLI Experiment
+
+<p align="center">
+  <img
+    width="944"
+    alt="Final paired benchmark executed through the run_experiment.py CLI"
+    src="https://github.com/user-attachments/assets/92cfc32e-34dc-4d81-a740-4ff15788e940"
+  />
+</p>
+
+<p align="center">
+  <strong>8,000 validated adversarial variants</strong>
+  <br>
+  ↓
+  <br>
+  <strong>JSONL Telemetry → Splunk HEC</strong>
+  <br>
+  ↓
+</p>
 
 ## Quick start
 
@@ -305,7 +356,8 @@ Open Splunk at `http://localhost:8000` (or use the forwarded private port in Cod
 <img width="1470" height="312" alt="Screenshot 2026-08-29 at 1 23 57 AM" src="https://github.com/user-attachments/assets/705809ad-909c-4918-a899-3eb4b44654e0" />
 <img width="1470" height="396" alt="Screenshot 2026-08-29 at 1 24 06 AM" src="https://github.com/user-attachments/assets/228734e2-832e-4bc2-a372-ff60586963bc" />
 <img width="1470" height="408" alt="Screenshot 2026-08-29 at 1 24 14 AM" src="https://github.com/user-attachments/assets/9e79db84-0300-408f-9cda-456735605838" />
-<img width="1470" height="397" alt="Screenshot 2026-08-29 at 1 24 23 AM" src="https://github.com/user-attachments/assets/2db3fd22-d27b-4c92-88d6-661880705b43" />
+<img width="1470" height="407" alt="Screenshot 2026-08-29 at 2 04 06 AM" src="https://github.com/user-attachments/assets/e87612a9-b5c6-4a60-9283-569410892c0f" />
+*Top detector activations observed across the final paired benchmark. Multiple detectors can fire on the same adversarial execution, so detector activation counts are not expected to sum to the number of detected requests.*
 <img width="1470" height="404" alt="Screenshot 2026-08-29 at 1 24 46 AM" src="https://github.com/user-attachments/assets/125dac1b-c114-42c7-b743-3503f9c2306b" />
 <img width="1470" height="326" alt="Screenshot 2026-08-29 at 1 25 14 AM" src="https://github.com/user-attachments/assets/233c1dd3-5950-4f86-bf6c-6bdb44c817c2" />
 <img width="923" height="659" alt="Screenshot 2026-08-29 at 1 22 56 AM" src="https://github.com/user-attachments/assets/1e022ee8-63db-4a8c-a3e3-b096aa106820" />
@@ -642,5 +694,3 @@ mutation engine.
 The final experiment generated 8,000 unique adversarial payload variants. Each
 variant was replayed once in monitor mode and once in block mode, resulting in
 16,000 total adversarial execution events.
-
-**Benchmark here:** After the run, add a concise results table and the final dashboard screenshot. Keep the experiment ID, seed, variant count, attack success rate, detection rate, block rate, false-positive rate, benign-block rate, successful-undetected attacks, and paired prevention rate.
